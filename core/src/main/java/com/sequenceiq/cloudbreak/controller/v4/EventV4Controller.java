@@ -30,7 +30,7 @@ import com.sequenceiq.cloudbreak.service.workspace.WorkspaceService;
 import com.sequenceiq.cloudbreak.structuredevent.LegacyStructuredEventService;
 import com.sequenceiq.cloudbreak.structuredevent.event.StructuredEventContainer;
 import com.sequenceiq.cloudbreak.workspace.controller.WorkspaceEntityType;
-
+// This should be authorized
 @Controller
 @DisableCheckPermissions
 @Transactional(TxType.NEVER)

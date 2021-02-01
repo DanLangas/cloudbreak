@@ -428,11 +428,6 @@ public class ClusterTemplateService extends AbstractWorkspaceAwareResourceServic
     }
 
     @Override
-    public List<String> getResourceCrnsInAccount() {
-        return clusterTemplateRepository.findAllResourceCrnsByAccountId(ThreadBasedUserCrnProvider.getAccountId());
-    }
-
-    @Override
     public List<String> getResourceCrnListByResourceNameList(List<String> resourceNames) {
         return resourceNames.stream()
                 .map(resourceName -> clusterTemplateRepository.findResourceCrnByNameAndAccountId(resourceName, ThreadBasedUserCrnProvider.getAccountId()))

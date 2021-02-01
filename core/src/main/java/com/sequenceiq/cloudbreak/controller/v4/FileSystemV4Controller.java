@@ -16,6 +16,7 @@ import com.sequenceiq.cloudbreak.service.blueprint.BlueprintService;
 import com.sequenceiq.cloudbreak.workspace.controller.WorkspaceEntityType;
 import com.sequenceiq.common.api.cloudstorage.query.ConfigQueryEntry;
 
+// This should be authorized
 @Controller
 @WorkspaceEntityType(FileSystem.class)
 @DisableCheckPermissions

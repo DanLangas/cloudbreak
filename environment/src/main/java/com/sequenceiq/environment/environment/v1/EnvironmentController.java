@@ -24,6 +24,7 @@ import com.sequenceiq.authorization.annotation.CheckPermissionByResourceCrnList;
 import com.sequenceiq.authorization.annotation.CheckPermissionByResourceName;
 import com.sequenceiq.authorization.annotation.CheckPermissionByResourceNameList;
 import com.sequenceiq.authorization.annotation.DisableCheckPermissions;
+import com.sequenceiq.authorization.annotation.FilterListBasedOnPermissions;
 import com.sequenceiq.authorization.annotation.InternalOnly;
 import com.sequenceiq.authorization.annotation.RequestObject;
 import com.sequenceiq.authorization.annotation.ResourceCrn;
@@ -51,6 +52,7 @@ import com.sequenceiq.environment.api.v1.environment.model.response.DetailedEnvi
 import com.sequenceiq.environment.api.v1.environment.model.response.EnvironmentCrnResponse;
 import com.sequenceiq.environment.api.v1.environment.model.response.SimpleEnvironmentResponse;
 import com.sequenceiq.environment.api.v1.environment.model.response.SimpleEnvironmentResponses;
+import com.sequenceiq.environment.authorization.EnvironmentFiltering;
 import com.sequenceiq.environment.credential.domain.Credential;
 import com.sequenceiq.environment.credential.service.CredentialService;
 import com.sequenceiq.environment.credential.v1.converter.CredentialToCredentialV1ResponseConverter;
@@ -105,6 +107,8 @@ public class EnvironmentController implements EnvironmentEndpoint {
 
     private final EnvironmentLoadBalancerService environmentLoadBalancerService;
 
+    private final EnvironmentFiltering environmentFiltering;
+
     public EnvironmentController(
             EnvironmentApiConverter environmentApiConverter,
             EnvironmentResponseConverter environmentResponseConverter,
@@ -118,7 +122,8 @@ public class EnvironmentController implements EnvironmentEndpoint {
             CredentialToCredentialV1ResponseConverter credentialConverter,
             EnvironmentStackConfigUpdateService stackConfigUpdateService,
             EntitlementService entitlementService,
-            EnvironmentLoadBalancerService environmentLoadBalancerService) {
+            EnvironmentLoadBalancerService environmentLoadBalancerService,
+            EnvironmentFiltering environmentFiltering) {
         this.environmentApiConverter = environmentApiConverter;
         this.environmentResponseConverter = environmentResponseConverter;
         this.environmentService = environmentService;
@@ -132,6 +137,7 @@ public class EnvironmentController implements EnvironmentEndpoint {
         this.stackConfigUpdateService = stackConfigUpdateService;
         this.entitlementService = entitlementService;
         this.environmentLoadBalancerService = environmentLoadBalancerService;
+        this.environmentFiltering = environmentFiltering;
     }
 
     @Override
@@ -232,10 +238,10 @@ public class EnvironmentController implements EnvironmentEndpoint {
     }
 
     @Override
-    @DisableCheckPermissions
+    @FilterListBasedOnPermissions(action = AuthorizationResourceAction.DESCRIBE_ENVIRONMENT, filter = EnvironmentFiltering.class)
     public SimpleEnvironmentResponses list() {
-        String accountId = ThreadBasedUserCrnProvider.getAccountId();
-        return listAllEnvironmentsForAccount(accountId);
+        List<EnvironmentDto> environmentDtos = environmentFiltering.filterEnvironments(AuthorizationResourceAction.DESCRIBE_ENVIRONMENT);
+        return toSimpleEnvironmentResponses(environmentDtos);
     }
 
     @Override
@@ -246,6 +252,10 @@ public class EnvironmentController implements EnvironmentEndpoint {
 
     private SimpleEnvironmentResponses listAllEnvironmentsForAccount(String accountId) {
         List<EnvironmentDto> environmentDtos = environmentService.listByAccountId(accountId);
+        return toSimpleEnvironmentResponses(environmentDtos);
+    }
+
+    private SimpleEnvironmentResponses toSimpleEnvironmentResponses(List<EnvironmentDto> environmentDtos) {
         List<SimpleEnvironmentResponse> responses = environmentDtos.stream().map(environmentResponseConverter::dtoToSimpleResponse)
                 .collect(Collectors.toList());
         return new SimpleEnvironmentResponses(responses);

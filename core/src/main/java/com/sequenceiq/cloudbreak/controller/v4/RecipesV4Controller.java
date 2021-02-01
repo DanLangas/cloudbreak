@@ -15,6 +15,8 @@ import com.sequenceiq.authorization.annotation.CheckPermissionByResourceCrn;
 import com.sequenceiq.authorization.annotation.CheckPermissionByResourceName;
 import com.sequenceiq.authorization.annotation.CheckPermissionByResourceNameList;
 import com.sequenceiq.authorization.annotation.DisableCheckPermissions;
+import com.sequenceiq.authorization.annotation.FilterListBasedOnPermissions;
+import com.sequenceiq.authorization.annotation.FilterParam;
 import com.sequenceiq.authorization.annotation.ResourceCrn;
 import com.sequenceiq.authorization.annotation.ResourceName;
 import com.sequenceiq.authorization.annotation.ResourceNameList;
@@ -28,6 +30,7 @@ import com.sequenceiq.cloudbreak.api.endpoint.v4.recipes.responses.RecipeViewV4R
 import com.sequenceiq.cloudbreak.api.endpoint.v4.recipes.responses.RecipeViewV4Responses;
 import com.sequenceiq.cloudbreak.api.util.ConverterUtil;
 import com.sequenceiq.cloudbreak.auth.ThreadBasedUserCrnProvider;
+import com.sequenceiq.cloudbreak.authorization.RecipeFiltering;
 import com.sequenceiq.cloudbreak.common.type.ResourceEvent;
 import com.sequenceiq.cloudbreak.domain.Recipe;
 import com.sequenceiq.cloudbreak.domain.view.RecipeView;
@@ -45,10 +48,13 @@ public class RecipesV4Controller extends NotificationController implements Recip
     @Inject
     private ConverterUtil converterUtil;
 
+    @Inject
+    private RecipeFiltering recipeFiltering;
+
     @Override
-    @DisableCheckPermissions
-    public RecipeViewV4Responses list(Long workspaceId) {
-        Set<RecipeView> allViewByWorkspaceId = recipeService.findAllViewByWorkspaceId(workspaceId);
+    @FilterListBasedOnPermissions(action = AuthorizationResourceAction.DESCRIBE_RECIPE, filter = RecipeFiltering.class)
+    public RecipeViewV4Responses list(@FilterParam(RecipeFiltering.WORKSPACE_ID) Long workspaceId) {
+        Set<RecipeView> allViewByWorkspaceId = recipeFiltering.filterRecipes(AuthorizationResourceAction.DESCRIBE_RECIPE, workspaceId);
         return new RecipeViewV4Responses(converterUtil.convertAllAsSet(allViewByWorkspaceId, RecipeViewV4Response.class));
     }
 

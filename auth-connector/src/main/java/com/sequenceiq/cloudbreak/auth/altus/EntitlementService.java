@@ -8,6 +8,7 @@ import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.CDP_AZURE;
 import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.CDP_AZURE_SINGLE_RESOURCE_GROUP;
 import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.CDP_AZURE_SINGLE_RESOURCE_GROUP_DEDICATED_STORAGE_ACCOUNT;
 import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.CDP_BASE_IMAGE;
+import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.CDP_CB_AZURE_DISK_SSE_WITH_CMK;
 import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.CDP_CB_DATABASE_WIRE_ENCRYPTION;
 import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.CDP_CCM_V2;
 import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.CDP_CLOUD_IDENTITY_MAPPING;
@@ -19,7 +20,6 @@ import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.CDP_EXPERIE
 import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.CDP_FMS_CLUSTER_PROXY;
 import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.CDP_FREEIPA_HA_REPAIR;
 import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.CDP_GCP;
-import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.CDP_LIST_FILTERING;
 import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.CDP_MEDIUM_DUTY_SDX;
 import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.CDP_PUBLIC_ENDPOINT_ACCESS_GATEWAY;
 import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.CDP_RAZ;
@@ -33,7 +33,7 @@ import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.DATAHUB_AWS
 import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.DATAHUB_AZURE_AUTOSCALING;
 import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.FMS_FREEIPA_BATCH_CALL;
 import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.LOCAL_DEV;
-import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.CDP_CB_AZURE_DISK_SSE_WITH_CMK;
+import static com.sequenceiq.cloudbreak.auth.altus.model.Entitlement.PERSONAL_VIEW_CB_BY_RIGHT;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,7 +66,7 @@ public class EntitlementService {
     }
 
     public boolean listFilteringEnabled(String accountId) {
-        return isEntitlementRegistered(accountId, CDP_LIST_FILTERING);
+        return isEntitlementRegistered(accountId, PERSONAL_VIEW_CB_BY_RIGHT);
     }
 
     public boolean azureEnabled(String accountId) {
