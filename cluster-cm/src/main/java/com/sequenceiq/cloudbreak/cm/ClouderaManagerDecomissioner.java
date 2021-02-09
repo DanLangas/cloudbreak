@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils;
 
 import com.cloudera.api.swagger.ClouderaManagerResourceApi;
 import com.cloudera.api.swagger.ClustersResourceApi;
+import com.cloudera.api.swagger.CommandsResourceApi;
 import com.cloudera.api.swagger.HostTemplatesResourceApi;
 import com.cloudera.api.swagger.HostsResourceApi;
 import com.cloudera.api.swagger.MgmtServiceResourceApi;
@@ -197,14 +198,23 @@ public class ClouderaManagerDecomissioner {
                     .collect(Collectors.toList());
 
             LOGGER.debug("Decommissioning nodes: [{}]", stillAvailableRemovableHosts);
+            boolean onlyLostNodesAffected = hostsToRemove.values().stream().allMatch(InstanceMetaData::isDeletedOnProvider);
             ClouderaManagerResourceApi apiInstance = clouderaManagerApiFactory.getClouderaManagerResourceApi(client);
             ApiHostNameList body = new ApiHostNameList().items(stillAvailableRemovableHosts);
             ApiCommand apiCommand = apiInstance.hostsDecommissionCommand(body);
-            PollingResult pollingResult = clouderaManagerPollingServiceProvider.startPollingCmHostDecommissioning(stack, client, apiCommand.getId());
+            PollingResult pollingResult = clouderaManagerPollingServiceProvider
+                    .startPollingCmHostDecommissioning(stack, client, apiCommand.getId(), onlyLostNodesAffected, stillAvailableRemovableHosts.size());
             if (isExited(pollingResult)) {
                 throw new CancellationException("Cluster was terminated while waiting for host decommission");
             } else if (isTimeout(pollingResult)) {
-                throw new CloudbreakServiceException("Timeout while Cloudera Manager decommissioned host.");
+                if (onlyLostNodesAffected) {
+                    String warningMessage = "Cloudera Manager decommission host command {} polling timed out, " +
+                            "thus we are aborting the decommission and we are retrying it for lost nodes once again.";
+                    abortDecommissionWithWarningMessage(apiCommand, client, warningMessage);
+                    retryDecommissionNodes(apiInstance, body, stack, client, stillAvailableRemovableHosts.size());
+                } else {
+                    throw new CloudbreakServiceException("Timeout while Cloudera Manager decommissioned host.");
+                }
             }
 
             return stillAvailableRemovableHosts.stream()
@@ -215,6 +225,26 @@ public class ClouderaManagerDecomissioner {
             LOGGER.error("Failed to decommission hosts: {}", hostsToRemove.keySet(), e);
             throw new CloudbreakServiceException(e.getMessage(), e);
         }
+    }
+
+    private void retryDecommissionNodes(ClouderaManagerResourceApi apiInstance, ApiHostNameList body, Stack stack, ApiClient client, int removableHostsCount)
+            throws ApiException {
+        ApiCommand apiCommand = apiInstance.hostsDecommissionCommand(body);
+        PollingResult pollingResult = clouderaManagerPollingServiceProvider
+            .startPollingCmHostDecommissioning(stack, client, apiCommand.getId(), true, removableHostsCount);
+        if (isExited(pollingResult)) {
+            throw new CancellationException("Cluster was terminated while waiting for host decommission");
+        } else if (isTimeout(pollingResult)) {
+            String warningMessage = "Cloudera Manager retried decommission host command {} polling timed out again, thus we are aborting decommission " +
+                    "and we are skipping it, since these lost nodes clearly cannot be decommissioned, data loss expected in this case.";
+            abortDecommissionWithWarningMessage(apiCommand, client, warningMessage);
+        }
+    }
+
+    private void abortDecommissionWithWarningMessage(ApiCommand apiCommand, ApiClient client, String warningMessage) throws ApiException {
+        LOGGER.warn(warningMessage, apiCommand.getId());
+        CommandsResourceApi commandsResourceApi = clouderaManagerApiFactory.getCommandsResourceApi(client);
+        commandsResourceApi.abortCommand(apiCommand.getId());
     }
 
     private int getReplicationFactor(ApiClient client, String clusterName) {
