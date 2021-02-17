@@ -188,7 +188,6 @@ To launch the Cloudbreak application execute the `com.sequenceiq.cloudbreak.Clou
 -Daltus.ums.host=localhost
 -Dvault.addr=localhost
 -Dvault.root.token=<VAULT_ROOT_TOKEN>
--Dcb.enabledplatforms=""
 -Dinstance.node.id=<NODE_ID>
 ```
 
@@ -247,7 +246,6 @@ After importing the `cloudbreak` repo root, launch the Datalake application by e
 * Note: If cloudbreak is in the CB_LOCAL_DEV_LIST variable, the datalake.cloudbreak.url should be http://localhost:9091
 ````
 -Dserver.port=8086
--Dcb.enabledplatforms=AWS,AZURE,MOCK
 -Ddatalake.cloudbreak.url=http://localhost:8080
 -Dvault.root.token=<VAULT_ROOT_TOKEN>
 -Dvault.addr=localhost
@@ -287,7 +285,6 @@ After importing the `cloudbreak` repo root, launch the Redbeams application by e
 -Dserver.port=8087
 -Daltus.ums.host=localhost
 -Dvault.root.token=<VAULT_ROOT_TOKEN>
--Dcb.enabledplatforms=AWS,AZURE,MOCK
 -Dinstance.node.id=<NODE_ID>
 ````
 

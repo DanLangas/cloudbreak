@@ -17,8 +17,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import com.sequenceiq.common.api.backup.request.BackupRequest;
-import com.sequenceiq.environment.environment.v1.converter.BackupConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -33,6 +31,7 @@ import com.sequenceiq.cloudbreak.common.mappable.CloudPlatform;
 import com.sequenceiq.cloudbreak.polling.PollingResult;
 import com.sequenceiq.cloudbreak.polling.PollingService;
 import com.sequenceiq.cloudbreak.util.CidrUtil;
+import com.sequenceiq.common.api.backup.request.BackupRequest;
 import com.sequenceiq.common.api.telemetry.request.TelemetryRequest;
 import com.sequenceiq.common.api.type.Tunnel;
 import com.sequenceiq.environment.configuration.SupportedPlatforms;
@@ -46,6 +45,7 @@ import com.sequenceiq.environment.environment.flow.creation.event.EnvCreationEve
 import com.sequenceiq.environment.environment.flow.creation.event.EnvCreationFailureEvent;
 import com.sequenceiq.environment.environment.service.EnvironmentService;
 import com.sequenceiq.environment.environment.service.freeipa.FreeIpaService;
+import com.sequenceiq.environment.environment.v1.converter.BackupConverter;
 import com.sequenceiq.environment.environment.v1.converter.TelemetryApiConverter;
 import com.sequenceiq.environment.exception.FreeIpaOperationFailedException;
 import com.sequenceiq.flow.reactor.api.event.EventSender;
@@ -56,11 +56,11 @@ import com.sequenceiq.freeipa.api.v1.dns.model.AddDnsZoneForSubnetsRequest;
 import com.sequenceiq.freeipa.api.v1.dns.model.AddDnsZoneNetwork;
 import com.sequenceiq.freeipa.api.v1.freeipa.stack.model.FreeIpaServerRequest;
 import com.sequenceiq.freeipa.api.v1.freeipa.stack.model.attachchildenv.AttachChildEnvironmentRequest;
-import com.sequenceiq.freeipa.api.v1.freeipa.stack.model.common.instance.aws.AwsInstanceTemplateParameters;
-import com.sequenceiq.freeipa.api.v1.freeipa.stack.model.common.instance.aws.AwsInstanceTemplateSpotParameters;
 import com.sequenceiq.freeipa.api.v1.freeipa.stack.model.common.instance.InstanceGroupRequest;
 import com.sequenceiq.freeipa.api.v1.freeipa.stack.model.common.instance.InstanceGroupType;
 import com.sequenceiq.freeipa.api.v1.freeipa.stack.model.common.instance.InstanceTemplateRequest;
+import com.sequenceiq.freeipa.api.v1.freeipa.stack.model.common.instance.aws.AwsInstanceTemplateParameters;
+import com.sequenceiq.freeipa.api.v1.freeipa.stack.model.common.instance.aws.AwsInstanceTemplateSpotParameters;
 import com.sequenceiq.freeipa.api.v1.freeipa.stack.model.common.region.PlacementRequest;
 import com.sequenceiq.freeipa.api.v1.freeipa.stack.model.common.security.SecurityGroupRequest;
 import com.sequenceiq.freeipa.api.v1.freeipa.stack.model.common.security.SecurityRuleRequest;
@@ -118,7 +118,7 @@ public class FreeIpaCreationHandler extends EventSenderAwareHandler<EnvironmentD
             TelemetryApiConverter telemetryApiConverter,
             BackupConverter backupConverter,
             CloudPlatformConnectors connectors,
-            EventBus eventBus, @Value("${environment.enabledChildPlatforms}") Set<String> enabledChildPlatforms) {
+            EventBus eventBus, @Value("${cdp.platforms.supportedFeature.childPlatforms}") Set<String> enabledChildPlatforms) {
         super(eventSender);
         this.environmentService = environmentService;
         this.freeIpaService = freeIpaService;

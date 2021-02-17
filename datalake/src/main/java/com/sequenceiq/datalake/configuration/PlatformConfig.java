@@ -30,16 +30,16 @@ public class PlatformConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PlatformConfig.class);
 
-    @Value("${datalake.supported.externaldb.platform:AWS,AZURE,GCP}")
+    @Value("${cdp.platforms.supportedPlatforms}")
     private Set<CloudPlatform> dbServiceSupportedPlatforms;
 
-    @Value("${datalake.experimental.externaldb.platform:MOCK}")
+    @Value("${cdp.platforms.experimentalPlatforms}")
     private Set<CloudPlatform> dbServiceExperimentalPlatforms;
 
-    @Value("${datalake.supported.externaldb.pause.platform:AWS,GCP}")
+    @Value("${cdp.platforms.supportedFeature.stopDatabase}")
     private Set<CloudPlatform> dbServicePauseSupportedPlatforms;
 
-    @Value("${datalake.supported.externaldb.sslenforcement.platform:AWS,AZURE}")
+    @Value("${cdp.platforms.supportedFeature.sslEnforcement}")
     private Set<CloudPlatform> dbServiceSslEnforcementSupportedPlatforms;
 
     @Inject

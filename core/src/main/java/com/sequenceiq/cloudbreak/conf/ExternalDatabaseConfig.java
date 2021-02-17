@@ -28,13 +28,13 @@ public class ExternalDatabaseConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExternalDatabaseConfig.class);
 
-    @Value("${cb.externaldatabase.supported.platform:AWS,GCP}")
+    @Value("${cdp.platforms.supportedPlatforms}")
     private Set<CloudPlatform> dbServiceSupportedPlatforms;
 
-    @Value("${cb.externaldatabase.experimental.platform:AZURE,MOCK}")
+    @Value("${cdp.platforms.experimentalPlatforms}")
     private Set<CloudPlatform> dbServiceExperimentalPlatforms;
 
-    @Value("${cb.externaldatabase.pause.supported.platform:AWS,GCP}")
+    @Value("${cdp.platforms.supportedFeature.stopDatabase}")
     private Set<CloudPlatform> dbServicePauseSupportedPlatforms;
 
     @Inject
